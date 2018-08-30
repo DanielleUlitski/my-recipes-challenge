@@ -1,19 +1,19 @@
-var RecipeApp = function () {
+const RecipeApp = function () {
 
-    var recipes = [
-        // { 
-        //     id: 1,
-        //     name: 'Best Chicken Soup!', 
-        //     image: 'https://static01.nyt.com/images/2016/11/29/dining/recipelab-chick-noodle-still/recipelab-chick-noodle-still-master675.jpg',
-        //     ingredients: [
-        //         { name: 'whole chicken' },
-        //         { name: 'medium carrots'},
-        //         { name: 'onions' },
-        //     ] 
-        // }
+    const recipes = [
+        { 
+            id: 1,
+            name: 'Best Chicken Soup!', 
+            image: 'https://static01.nyt.com/images/2016/11/29/dining/recipelab-chick-noodle-still/recipelab-chick-noodle-still-master675.jpg',
+            ingredients: [
+                { name: 'whole chicken' },
+                { name: 'medium carrots'},
+                { name: 'onions' },
+            ] 
+        }
     ];
 
-    var $recipes = $('.recipes');
+    const $recipes = $('.recipes');
 
     //id's for recipes
     var recId = 2;
@@ -35,16 +35,38 @@ var RecipeApp = function () {
         recipes.push(recipe);
     };
 
-    var createIngredients = function(){
-        //add code
+    var createIngredients = function(name, recipeId){
+        const ingredient = {
+            name: name,
+            id: ingId
+        }
+        ingId ++;
+        const recipe = _getRecipeById(recipeId);
+        recipe.ingredients.push(ingredient);
     };
 
     var _getIngredientsHTML = function(recipe){
-        var recipesHTML = "";
+        let recipesHTML = "";
 
-        //add code
+        for (let i = 0; i < recipe.ingredients.length; i++) {
+            recipesHTML += "<li>" + recipe.ingredients[i].name + "</li>"
+        }
+        
         return recipesHTML;
     };
+
+    const _getRecipeById = function (id) {
+        for (let i = 0; i < recipes.length; i ++) {
+            if(recipes[i].id == id) {
+                return recipes[i];
+            }
+        }
+    }
+
+    const deleteRecipe = function (recipeId) {
+        let recipe = _getRecipeById(recipeId)
+        recipes.splice(recipes.indexOf(recipe), 1);
+    }
 
     var renderRecipes = function () {
         //empty recipes div
@@ -55,7 +77,7 @@ var RecipeApp = function () {
             var recipe = recipes[i];
 
             //return HTML for all ingredients
-            var ingredients = _getIngredientsHTML(); //add code
+            var ingredients = _getIngredientsHTML(recipe);
 
             $recipes.append(
                 '<div class="recipe col-md-6  offset-md-3 img-fluid shadow" data-id="' + recipe.id + '">' + 
@@ -71,6 +93,7 @@ var RecipeApp = function () {
                         
                     '</div>' +
                     '<ul class="ingredients">' + ingredients + '</ul>'+
+                    '<span class="delete-recipe input-group-text">Delete</span>' +
                 '</div>'
             );
         }
@@ -79,7 +102,8 @@ var RecipeApp = function () {
     return {
         createRecipe: createRecipe,
         renderRecipes: renderRecipes,
-        // createIngredients: createIngredients,
+        createIngredients: createIngredients,
+        deleteRecipe: deleteRecipe
     }
 };
 
@@ -99,3 +123,17 @@ $('.add-recipe').on('click', function(){
     app.renderRecipes();
 });
 
+$('.recipes').on('click', '.add-ingredients', function(){
+    const ingredientName = $(this).closest('.input-group').find('input').val();
+    const recipeId = $(this).closest('.recipe').data("id");
+
+    app.createIngredients(ingredientName, recipeId);
+    app.renderRecipes();
+})
+
+$('.recipes').on('click', '.delete-recipe', function () {
+    const recipeId = $(this).closest('.recipe').data('id');
+
+    app.deleteRecipe(recipeId);
+    app.renderRecipes();
+})
